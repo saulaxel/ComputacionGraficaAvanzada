@@ -72,12 +72,12 @@ public:
 			this->maxs = maxs;
 		}
 		AABB(glm::vec3 c, float width, float height, float length) {
-			mins.x = c.x - width / 2.0;
-			mins.y = c.y - height / 2.0;
-			mins.z = c.z - length / 2.0;
-			maxs.x = c.x + width / 2.0;
-			maxs.y = c.y + height / 2.0;
-			maxs.z = c.z + length / 2.0;
+			mins.x = c.x - width / 2.0f;
+			mins.y = c.y - height / 2.0f;
+			mins.z = c.z - length / 2.0f;
+			maxs.x = c.x + width / 2.0f;
+			maxs.y = c.y + height / 2.0f;
+			maxs.z = c.z + length / 2.0f;
 		}
 		AABB(float minx, float miny, float minz, float maxx, float maxy, float maxz) {
 			mins.x = minx;
@@ -180,6 +180,7 @@ public:
 		glBindVertexArray(0);
 		shader_ptr->turnOff();
 		this->enableFillMode();
+		float f = 10.0f + 1.0f;
 	}
 
 	void destroy() {

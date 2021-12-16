@@ -109,7 +109,7 @@ std::vector<std::vector<glm::mat4>> getKeyFrames(std::string fileName) {
 			float aaa[16];
 			while ((pos2 = token1.find(delimiter2)) != std::string::npos) {
 				token2 = token1.substr(0, pos2);
-				aaa[i++] = atof(token2.c_str());
+				aaa[i++] = std::stof(token2);
 				/*if (j == 0)
 					transform[i].x = atof(token2.c_str());
 				if (j == 1)
@@ -125,7 +125,7 @@ std::vector<std::vector<glm::mat4>> getKeyFrames(std::string fileName) {
 				}*/
 				token1.erase(0, pos2 + delimiter2.length());
 			}
-			aaa[i++] = atof(token1.c_str());
+			aaa[i++] = std::stof(token1);
 			transform = glm::make_mat4(aaa);
 			transforms.push_back(transform);
 			s.erase(0, pos1 + delimiter1.length());
@@ -150,7 +150,7 @@ std::vector<std::vector<float>> getKeyRotFrames(std::string fileName) {
 		while ((pos1 = s.find(delimiter1)) != std::string::npos) {
 			token1 = s.substr(0, pos1);
 			//std::cout << token1 << std::endl;
-			float rotation = atof(token1.c_str());
+			float rotation = std::stof(token1);
 			rotations.push_back(rotation);
 			s.erase(0, pos1 + delimiter1.length());
 		}

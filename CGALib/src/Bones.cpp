@@ -85,7 +85,7 @@ void Bones::bonesTransform(float timeInSeconds,
 
 	transforms.resize(m_NumBones);
 
-	for (unsigned int i = 0; i < m_NumBones; i++) {
+	for (int i = 0; i < m_NumBones; i++) {
 		transforms[i] = m_BoneInfo[i].finalTransformation;
 	}
 
