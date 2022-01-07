@@ -20,16 +20,17 @@ Model::Model() {
 }
 
 Model::~Model() {
-	for (GLuint i = 0; i < this->meshes.size(); i++){
-		delete this->meshes[i]->bones;
-		delete this->meshes[i];
+	for (Mesh* m : this->meshes) {
+		delete m->bones;
+		delete m;
 	}
-	for (int i = 0; i < this->textureLoaded.size(); i++)
-		delete this->textureLoaded[i];
+	for (Texture* tLoaded : this->textureLoaded) {
+		delete tLoaded;
+	}
 }
 
 void Model::render(glm::mat4 parentTrans) {
-	float runningTime = TimeManager::Instance().GetRunningTime();
+	float runningTime = static_cast<float>(TimeManager::Instance().GetRunningTime());
 	//float runningTime = TimeManager::Instance().DeltaTime;
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
 		this->meshes[i]->setShader(this->getShader());

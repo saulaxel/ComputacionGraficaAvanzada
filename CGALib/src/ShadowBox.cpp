@@ -11,10 +11,10 @@ ShadowBox::ShadowBox(glm::vec3 direction, Camera * camera, float shadowDistance,
 void ShadowBox::update(int screenWidth, int screenHeight){
 
 	float asr = (float) screenWidth / (float) screenHeight;
-	float nearHeight = 2.0 * nearPlane * tan(glm::radians(fovy / 2.0f));
-	float farHeight = 2.0 * shadowDistance * tan(glm::radians(fovy / 2.0f));
-	float nearWidth = 2.0 * nearPlane * asr * tan(glm::radians(fovy / 2.0f));
-	float farWidth = 2.0 * shadowDistance * asr * tan(glm::radians(fovy / 2.0f));
+	float nearHeight = 2.0f * nearPlane * tanf(glm::radians(fovy / 2.0f));
+	float farHeight = 2.0f * shadowDistance * tanf(glm::radians(fovy / 2.0f));
+	float nearWidth = 2.0f * nearPlane * asr * tanf(glm::radians(fovy / 2.0f));
+	float farWidth = 2.0f * shadowDistance * asr * tanf(glm::radians(fovy / 2.0f));
 
 	glm::vec3 centerNear = camera->getPosition() + camera->getFront() * nearPlane;
 	glm::vec3 centerFar = camera->getPosition() + camera->getFront() * shadowDistance;

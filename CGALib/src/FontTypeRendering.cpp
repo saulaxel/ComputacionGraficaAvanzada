@@ -38,8 +38,8 @@ const char *FontTypeRendering::FRAGMENT_SHADER = ""
  * @param ScreenHeight Largo de ventana.
  */
 FontTypeRendering::FontTypeRendering(double ScreenWidth, double ScreenHeight) {
-	FontTypeRendering::SCALEX = 2.0 / ScreenWidth;
-	FontTypeRendering::SCALEY = 2.0 / ScreenHeight;
+	FontTypeRendering::SCALEX = 2.0f / static_cast<float>(ScreenWidth);
+	FontTypeRendering::SCALEY = 2.0f / static_cast<float>(ScreenHeight);
 }
 
 /**

@@ -5,15 +5,15 @@ Sphere::Sphere(int slices, int stacks, float ratio) {
 	index.resize((slices * stacks + slices) * 6);
 	for (int i = 0; i <= stacks; ++i) {
 		float V = i / (float)stacks;
-		float phi = V * M_PI;
+		float phi = V * static_cast<float>(M_PI);
 
 		for (int j = 0; j <= slices; ++j) {
 			float U = j / (float)slices;
-			float theta = U * M_PI * 2.0;
+			float theta = U * static_cast<float>(M_PI) * 2.0f;
 
-			float X = cos(theta) * sin(phi);
-			float Y = cos(phi);
-			float Z = sin(theta) * sin(phi);
+			float X = cosf(theta) * sinf(phi);
+			float Y = cosf(phi);
+			float Z = sinf(theta) * sinf(phi);
 			vertexArray[i * (slices + 1) + j].m_pos = ratio * glm::vec3(X, Y, Z);
 			vertexArray[i * (slices + 1) + j].m_tex = glm::vec2(U, V);
 			vertexArray[i * (slices + 1) + j].m_normal = glm::vec3(X, Y, Z);

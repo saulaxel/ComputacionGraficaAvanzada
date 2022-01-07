@@ -51,7 +51,7 @@ Shader shaderMulLighting;
 std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 Sphere skyboxSphere(20, 20);
-Box boxCesped;
+Box boxCircuito;
 Box boxWalls;
 Box boxHighway;
 Box boxLandingPad;
@@ -222,8 +222,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	skyboxSphere.setShader(&shaderSkybox);
 	skyboxSphere.setScale(glm::vec3(20.0f, 20.0f, 20.0f));
 
-	boxCesped.init();
-	boxCesped.setShader(&shaderMulLighting);
+	boxCircuito.init();
+	boxCircuito.setShader(&shaderMulLighting);
 
 	boxWalls.init();
 	boxWalls.setShader(&shaderMulLighting);
@@ -497,7 +497,7 @@ void destroy() {
 
 	// Basic objects Delete
 	skyboxSphere.destroy();
-	boxCesped.destroy();
+	boxCircuito.destroy();
 	boxWalls.destroy();
 	boxHighway.destroy();
 	boxLandingPad.destroy();
@@ -793,7 +793,7 @@ void applicationLoop() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureCespedID);
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(200, 200)));
-		boxCesped.render(modelCesped);
+		boxCircuito.render(modelCesped);
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 		glBindTexture(GL_TEXTURE_2D, 0);
 

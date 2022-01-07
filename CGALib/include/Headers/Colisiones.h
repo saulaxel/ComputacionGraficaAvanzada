@@ -131,7 +131,7 @@ bool testSphereOBox(AbstractModel::SBB sbb, AbstractModel::OBB obb){
 	return false;
 }
 bool testOBBOBB(AbstractModel::OBB a, AbstractModel::OBB b){
-	float EPSILON = 0.0001;
+	float EPSILON = 0.0001f;
 	float ra, rb;
 	glm::mat3 R = glm::mat4(0.0), AbsR = glm::mat4(0.0);
 	// compute the matrix axis from the quaternions

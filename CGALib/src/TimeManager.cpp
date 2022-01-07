@@ -13,7 +13,7 @@ double TimeManager::CalculateFrameRate(bool writeToConsole = false) {
 	static double startTime = GetTime(); // Se almacena el tiempo de inicio
 	static double lastTime = GetTime(); //  Se almacena el tiempo del ulimo frame
 	static char strFrameRate[50] = { 0 }; // Almacenamos la cadena para el titulo de la ventana
-	static double currentFPS = 0.0f; // Se almacena el valor actual de los frames por segundos
+	static double currentFPS = 0.0f; 
 
 	// Obtiene el tiempo actual en segundos, depende de nuestro ambiente
 	CurrentTime = GetTime();

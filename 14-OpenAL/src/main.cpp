@@ -45,6 +45,8 @@
 
 // Include Colision headers functions
 #include "Headers/Colisiones.h"
+// Shadow box include
+#include "Headers/ShadowBox.h"
 
 // OpenAL include
 #include <AL/alut.h>
@@ -82,6 +84,8 @@ Box boxCollider;
 Sphere sphereCollider(10, 10);
 Box boxViewDepth;
 Box boxLightViewBox;
+
+ShadowBox* shadowBox;
 
 // Models complex instances
 Model modelRock;
@@ -239,8 +243,8 @@ GLuint depthMap, depthMapFBO;
  */
 
 // OpenAL Defines
-#define NUM_BUFFERS 3
-#define NUM_SOURCES 3
+#define NUM_BUFFERS 4
+#define NUM_SOURCES 4
 #define NUM_ENVIRONMENTS 1
 // Listener
 ALfloat listenerPos[] = { 0.0, 0.0, 4.0 };
@@ -255,6 +259,9 @@ ALfloat source1Vel[] = { 0.0, 0.0, 0.0 };
 // Source 2
 ALfloat source2Pos[] = { 2.0, 0.0, 0.0 };
 ALfloat source2Vel[] = { 0.0, 0.0, 0.0 };
+// Source 3
+ALfloat source3Pos[] = { 2.0, 0.0, 0.0 };
+ALfloat source3Vel[] = { 0.0, 0.0, 0.0 };
 // Buffers
 ALuint buffer[NUM_BUFFERS];
 ALuint source[NUM_SOURCES];
@@ -265,7 +272,7 @@ ALenum format;
 ALvoid *data;
 int ch;
 ALboolean loop;
-std::vector<bool> sourcesPlay = {true, true, true};
+std::vector<bool> sourcesPlay = {true, true, true, true};
 
 // Se definen todos las funciones.
 void reshapeCallback(GLFWwindow *Window, int widthRes, int heightRes);
@@ -1073,6 +1080,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	buffer[0] = alutCreateBufferFromFile("../sounds/fountain.wav");
 	buffer[1] = alutCreateBufferFromFile("../sounds/fire.wav");
 	buffer[2] = alutCreateBufferFromFile("../sounds/darth_vader.wav");
+	buffer[3] = alutCreateBufferFromFile("../sounds/sonidoCarro.wav");
 	int errorAlut = alutGetError();
 	if (errorAlut != ALUT_ERROR_NO_ERROR){
 		printf("- Error open files with alut %d !!\n", errorAlut);
@@ -1113,6 +1121,14 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	alSourcei(source[2], AL_BUFFER, buffer[2]);
 	alSourcei(source[2], AL_LOOPING, AL_TRUE);
 	alSourcef(source[2], AL_MAX_DISTANCE, 500);
+
+	alSourcef(source[3], AL_PITCH, 1.0f);
+	alSourcef(source[3], AL_GAIN, 0.3f);
+	alSourcefv(source[3], AL_POSITION, source2Pos);
+	alSourcefv(source[3], AL_VELOCITY, source2Vel);
+	alSourcei(source[3], AL_BUFFER, buffer[3]);
+	alSourcei(source[3], AL_LOOPING, AL_TRUE);
+	alSourcef(source[3], AL_MAX_DISTANCE, 500);
 }
 
 void destroy() {
@@ -1355,16 +1371,16 @@ bool processInput(bool continueApplication) {
 		modelMatrixDart = glm::translate(modelMatrixDart, glm::vec3(0.02, 0.0, 0.0));
 
 	if (modelSelected == 2 && glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-		modelMatrixMayow = glm::rotate(modelMatrixMayow, glm::radians(1.0f), glm::vec3(0, 1, 0));
+		modelMatrixMayow = glm::rotate<float>(modelMatrixMayow, glm::radians(90.0f) * TimeManager::LastDeltaTime(), glm::vec3(0, 1, 0));
 		animationIndex = 0;
 	}else if (modelSelected == 2 && glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-		modelMatrixMayow = glm::rotate(modelMatrixMayow, glm::radians(-1.0f), glm::vec3(0, 1, 0));
+		modelMatrixMayow = glm::rotate<float>(modelMatrixMayow, glm::radians(-90.0f) * TimeManager::LastDeltaTime(), glm::vec3(0, 1, 0));
 		animationIndex = 0;
 	}if (modelSelected == 2 && glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0, 0, 0.02));
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0, 0, 2 * TimeManager::LastDeltaTime()));
 		animationIndex = 0;
 	}else if (modelSelected == 2 && glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0, 0, -0.02));
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0, 0, -2 * TimeManager::LastDeltaTime()));
 		animationIndex = 0;
 	}
 
@@ -1373,6 +1389,9 @@ bool processInput(bool continueApplication) {
 		isJump = true;
 		startTimeJump = currTime;
 		tmv = 0;
+		// sourcesPlay[3] = true;
+		// Existe la función para parar el audio a la mala
+		//alSourceStop(/* NO  se que vá aquí*/)
 	}
 
 	glfwPollEvents();
@@ -1419,6 +1438,7 @@ void applicationLoop() {
 	lastTimeParticlesAnimationFire = lastTime;
 
 	glm::vec3 lightPos = glm::vec3(10.0, 10.0, 0.0);
+	shadowBox = new ShadowBox(-lightPos, camera.get(), 15.0f, 0.1f, 45.0f);
 
 	while (psi) {
 		currTime = TimeManager::Instance().GetTime();
@@ -1463,11 +1483,16 @@ void applicationLoop() {
 		view = camera->getViewMatrix();
 
 		// Matriz de proyección del shadow mapping
-		glm::mat4 lightProjection, lightView;
+		glm::mat4 lightProjection = glm::mat4(1.0f), lightView;
+		shadowBox->update(screenWidth, screenHeight);
+		glm::vec3 centerBox = shadowBox->getCenter();
 		glm::mat4 lightSpaceMatrix;
-		float near_plane = 0.1f, far_plane = 20.0f;
-		lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
+		lightView = glm::lookAt(centerBox, centerBox + glm::normalize(-lightPos), glm::vec3(0.0, 1.0, 0.0));
+		lightProjection[0][0] = 2.0f / shadowBox->getWidth();
+		lightProjection[1][1] = 2.0f / shadowBox->getHeight();
+		lightProjection[2][2] = -2.0f / shadowBox->getLength();
+		lightProjection[3][3] = 1.0f;
+
 		lightSpaceMatrix = lightProjection * lightView;
 		shaderDepth.setMatrix4("lightSpaceMatrix", 1, false, glm::value_ptr(lightSpaceMatrix));
 
@@ -1994,6 +2019,11 @@ void applicationLoop() {
 		source2Pos[2] = modelMatrixDart[3].z;
 		alSourcefv(source[2], AL_POSITION, source2Pos);
 
+		source3Pos[0] = modelMatrixLambo[3].x;
+		source3Pos[1] = modelMatrixLambo[3].y;
+		source3Pos[2] = modelMatrixLambo[3].z;
+		alSourcefv(source[3], AL_POSITION, source3Pos);
+
 		// Listener for the Thris person camera
 		listenerPos[0] = modelMatrixMayow[3].x;
 		listenerPos[1] = modelMatrixMayow[3].y;
@@ -2263,7 +2293,7 @@ void renderScene(bool renderParticles){
 	modelMatrixMayowBody = glm::scale(modelMatrixMayowBody, glm::vec3(0.021, 0.021, 0.021));
 	mayowModelAnimate.setAnimationIndex(animationIndex);
 	mayowModelAnimate.render(modelMatrixMayowBody);
-
+	
 	/**********
 	 * Update the position with alpha objects
 	 */

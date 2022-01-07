@@ -38,6 +38,10 @@ public:
 		return instance;
 	}
 
+	static float LastDeltaTime() {
+		return static_cast<float>(Instance().DeltaTime);
+	}
+
 	double CalculateFrameRate(bool writeToConsole);
 
 	double GetRunningTime();

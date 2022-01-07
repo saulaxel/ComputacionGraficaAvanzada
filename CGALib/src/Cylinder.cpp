@@ -28,10 +28,10 @@ Cylinder::Cylinder(int slices, int stacks, float topRadius, float bottomRadius, 
 	float dTheta = float(2.0f * M_PI) / slices;
 
 	for (int i = slices; i >= 0; i--) {
-		float x = topRadius * cos(i * dTheta);
-		float z = topRadius * sin(i * dTheta);
-		float U = cos(i * dTheta) / 2.0 + 0.5;
-		float V = sin(i * dTheta) / 2.0 + 0.5;
+		float x = topRadius * cosf(i * dTheta);
+		float z = topRadius * sinf(i * dTheta);
+		float U = cosf(i * dTheta) / 2.0f + 0.5f;
+		float V = sinf(i * dTheta) / 2.0f + 0.5f;
 		vertexArray[count++] = Vertex(glm::vec3(x, y, z), glm::vec2(U, V), glm::vec3(0, 1, 0));
 	}
 	vertexArray[count++] = Vertex(glm::vec3(0, y, 0), glm::vec2(0.5, 0.5), glm::vec3(0, 1, 0));
@@ -41,8 +41,8 @@ Cylinder::Cylinder(int slices, int stacks, float topRadius, float bottomRadius, 
 	for (int i = 0; i <= slices; i++) {
 		float x = bottomRadius * cos(i * dTheta);
 		float z = bottomRadius * sin(i * dTheta);
-		float U = cos(i * dTheta) / 2.0 + 0.5;
-		float V = sin(i * dTheta) / 2.0 + 0.5;
+		float U = cos(i * dTheta) / 2.0f + 0.5f;
+		float V = sin(i * dTheta) / 2.0f + 0.5f;
 		vertexArray[count++] = Vertex(glm::vec3(x, y, z), glm::vec2(U, V), glm::vec3(0, -1, 0));
 	}
 	vertexArray[count++] = Vertex(glm::vec3(0, y, 0), glm::vec2(0.5, 0.5), glm::vec3(0, -1, 0));

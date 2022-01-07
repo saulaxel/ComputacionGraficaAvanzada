@@ -43,7 +43,6 @@ int screenHeight;
 
 GLFWwindow *window;
 
-Shader shader;
 //Shader con skybox
 Shader shaderSkybox;
 //Shader con multiples luces
@@ -52,7 +51,7 @@ Shader shaderMulLighting;
 std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 
 Sphere skyboxSphere(20, 20);
-Box boxCesped;
+Box boxCircuito;
 Box boxWalls;
 Box boxHighway;
 Box boxLandingPad;
@@ -89,7 +88,12 @@ Model modelBuzzLeftArm;
 Model modelBuzzLeftForearm;
 Model modelBuzzLeftHand;
 
-GLuint textureCespedID, textureWallID, textureWindowID, textureHighwayID, textureLandingPadID;
+GLuint textureCespedID,
+	textureWallID,
+	textureWindowID,
+	textureHighwayID,
+	textureLandingPadID,
+	textureCircuitoID;
 GLuint skyboxTextureID;
 
 GLenum types[6] = {
@@ -212,15 +216,15 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	if (bFullScreen)
 		window = glfwCreateWindow(width, height, strTitle.c_str(),
-				glfwGetPrimaryMonitor(), nullptr);
+			glfwGetPrimaryMonitor(), nullptr);
 	else
 		window = glfwCreateWindow(width, height, strTitle.c_str(), nullptr,
-				nullptr);
+			nullptr);
 
 	if (window == nullptr) {
 		std::cerr
-				<< "Error to create GLFW window, you can try download the last version of your video card that support OpenGL 3.3+"
-				<< std::endl;
+			<< "Error to create GLFW window, you can try download the last version of your video card that support OpenGL 3.3+"
+			<< std::endl;
 		destroy();
 		exit(-1);
 	}
@@ -249,7 +253,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glEnable(GL_CULL_FACE);
 
 	// Inicialización de los shaders
-	shader.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox.fs");
 	shaderMulLighting.initialize("../Shaders/iluminacion_texture_res.vs", "../Shaders/multipleLights.fs");
 
@@ -262,8 +265,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	esfera1.setShader(&shaderMulLighting);
 	esfera1.setPosition(glm::vec3(0.0f, 2.0f, -10.0f));
 
-	boxCesped.init();
-	boxCesped.setShader(&shaderMulLighting);
+	boxCircuito.init();
+	boxCircuito.setShader(&shaderMulLighting);
 
 	boxWalls.init();
 	boxWalls.setShader(&shaderMulLighting);
@@ -370,38 +373,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 			std::cout << "Failed to load texture" << std::endl;
 		skyboxTexture.freeImage(bitmap);
 	}
-
-	// Definiendo la textura a utilizar
-	Texture textureCesped("../Textures/cesped.jpg");
-	// Carga el mapa de bits (FIBITMAP es el tipo de dato de la libreria)
-	bitmap = textureCesped.loadImage();
-	// Convertimos el mapa de bits en un arreglo unidimensional de tipo unsigned char
-	data = textureCesped.convertToData(bitmap, imageWidth,
-			imageHeight);
-	// Creando la textura con id 1
-	glGenTextures(1, &textureCespedID);
-	// Enlazar esa textura a una tipo de textura de 2D.
-	glBindTexture(GL_TEXTURE_2D, textureCespedID);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Verifica si se pudo abrir la textura
-	if (data) {
-		// Transferis los datos de la imagen a memoria
-		// Tipo de textura, Mipmaps, Formato interno de openGL, ancho, alto, Mipmaps,
-		// Formato interno de la libreria de la imagen, el tipo de dato y al apuntador
-		// a los datos
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0,
-						GL_BGRA, GL_UNSIGNED_BYTE, data);
-		// Generan los niveles del mipmap (OpenGL es el ecargado de realizarlos)
-		glGenerateMipmap(GL_TEXTURE_2D);
-	} else
-		std::cout << "Failed to load texture" << std::endl;
-	// Libera la memoria de la textura
-	textureCesped.freeImage(bitmap);
 
 	// Definiendo la textura a utilizar
 	Texture textureWall("../Textures/whiteWall.jpg");
@@ -523,7 +494,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
-		std::cerr << "Fallo al cargar la textura" << std::endl;
+		std::cerr << "Fallo al cargar la textura\n";
 	}
 	// Liberar memoria de la textura
 	textureLandingPad.freeImage(bitmap);
@@ -536,13 +507,12 @@ void destroy() {
 	// Eliminar los shader y buffers creados.
 
 	// Shaders Delete
-	shader.destroy();
 	shaderMulLighting.destroy();
 	shaderSkybox.destroy();
 
 	// Basic objects Delete
 	skyboxSphere.destroy();
-	boxCesped.destroy();
+	boxCircuito.destroy();
 	boxWalls.destroy();
 	boxHighway.destroy();
 	boxLandingPad.destroy();
@@ -838,10 +808,6 @@ void applicationLoop() {
 				(float) screenWidth / (float) screenHeight, 0.01f, 100.0f);
 		glm::mat4 view = camera->getViewMatrix();
 
-		// Settea la matriz de vista y projection al shader con solo color
-		shader.setMatrix4("projection", 1, false, glm::value_ptr(projection));
-		shader.setMatrix4("view", 1, false, glm::value_ptr(view));
-
 		// Settea la matriz de vista y projection al shader con skybox
 		shaderSkybox.setMatrix4("projection", 1, false,
 				glm::value_ptr(projection));
@@ -877,12 +843,12 @@ void applicationLoop() {
 		 *******************************************/
 		glm::mat4 modelCesped = glm::mat4(1.0);
 		modelCesped = glm::translate(modelCesped, glm::vec3(0.0, 0.0, 0.0));
-		modelCesped = glm::scale(modelCesped, glm::vec3(200.0, 0.001, 200.0));
+		modelCesped = glm::scale(modelCesped, glm::vec3(192.0, 0.001, 111.8));
 		// Se activa la textura del agua
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureCespedID);
-		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(200, 200)));
-		boxCesped.render(modelCesped);
+		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(192.0, 111.8)));
+		boxCircuito.render(modelCesped);
 		shaderMulLighting.setVectorFloat2("scaleUV", glm::value_ptr(glm::vec2(0, 0)));
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1264,7 +1230,7 @@ void applicationLoop() {
 			break;
 		}
 		default:
-			std::cerr << "Estado desconocido" << std::endl;
+			std::cerr << "Estado desconocido\n";
 			exit(1);
 			break;
 		}

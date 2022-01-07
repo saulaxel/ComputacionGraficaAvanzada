@@ -54,11 +54,11 @@ class DLL_PUBLIC FontTypeRendering {
 	/**
 	 * Escala en x de la fuente
 	 */
-	double SCALEX;
+	float SCALEX;
 	/**
 	 * Escala en y de la fuente
 	 */
-	double SCALEY;
+	float SCALEY;
 
 public:
 	/**
